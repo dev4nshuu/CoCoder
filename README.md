@@ -1,4 +1,4 @@
-# 🖥️ CollaBrix
+# 🖥️ CoCoder
 
 A **real-time, web-based** collaborative code editor that allows multiple users to code together in the same environment. The platform enables developers to **write, edit, and execute** code collaboratively with seamless communication.
 
@@ -18,12 +18,12 @@ A **real-time, web-based** collaborative code editor that allows multiple users 
    ```
  Create a Docker image:
    ```bash
-   docker build -t collabrix .
+   docker build -t cocoder
    ```
 
- Run a container from the `collabrix` image:
+ Run a container from the `cocoder` image:
    ```bash
-   docker run -p 5000:5000 collabrix
+   docker run -p 5000:5000 cocoder
    ```
 
  Open the app in your browser:
