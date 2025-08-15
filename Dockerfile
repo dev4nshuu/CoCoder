@@ -1,27 +1,17 @@
-# Official Python image as the base image
 FROM python:3.11-slim
 
-# Install necessary packages for building and running C++ programs
-RUN apt-get update && apt-get install -y \
-    g++ \
-    build-essential \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
 
-# Set the working directory in the container
-WORKDIR /cocoder
+RUN apt-get update && \
+    apt-get install -y build-essential g++ && \
+    rm -rf /var/lib/apt/lists/*
 
-# Copy all project files into the container
-COPY . .
-
-# Installing Python dependencies
+COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Environment variable for the port
-ENV PORT=5000
+COPY . .
 
-# Expose port 5000
-EXPOSE 5000
+ENV PORT=10000
+EXPOSE 10000
 
-# Default command to run the application
-CMD ["python", "app.py"]
+CMD ["sh", "-c", "gunicorn --worker-class eventlet -w 1 --bind 0.0.0.0:$PORT app:app"]
