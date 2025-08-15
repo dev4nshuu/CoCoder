@@ -10,7 +10,8 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secret!')
 
 # Use CORS="*" for initial testing. Tighten in production.
-socketio = SocketIO(app, cors_allowed_origins="*", logger=False, engineio_logger=False)
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='eventlet', logger=False, engineio_logger=False)
+
 @app.route('/healthz')
 def healthz():
     return "OK", 200
