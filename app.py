@@ -11,6 +11,9 @@ app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'secret!')
 
 # Use CORS="*" for initial testing. Tighten in production.
 socketio = SocketIO(app, cors_allowed_origins="*", logger=False, engineio_logger=False)
+@app.route('/healthz')
+def healthz():
+    return "OK", 200
 
 @app.route('/')
 def index():
