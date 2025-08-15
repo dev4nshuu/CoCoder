@@ -1,5 +1,5 @@
 # Official Python image as the base image
-FROM python:3.9-slim
+FROM python:3.11-slim
 
 # Install necessary packages for building and running C++ programs
 RUN apt-get update && apt-get install -y \
@@ -9,19 +9,19 @@ RUN apt-get update && apt-get install -y \
     && rm -rf /var/lib/apt/lists/*
 
 # Set the working directory in the container
-WORKDIR /CoCoder
+WORKDIR /cocoder
 
-# Copying all files to directory
+# Copy all project files into the container
 COPY . .
 
-# Installing Flask dependencies
+# Installing Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Env variable
+# Environment variable for the port
 ENV PORT=5000
 
 # Expose port 5000
 EXPOSE 5000
 
-# Set the default command to run app.py
+# Default command to run the application
 CMD ["python", "app.py"]
