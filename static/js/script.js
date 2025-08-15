@@ -8,9 +8,10 @@ let userCursors = [];
 let fileCount = 1;
 let currentDivOfFile = null;
 fileExtension = "py";
+let isProgrammaticChange = false; // Flag to prevent infinite loops
 
 /*
- * popMenu: 
+ * popMenu:
  * Gets the coordinates of the right click and displays the popup menu.
  * Removes popup on clicking on left click.
  */
@@ -185,16 +186,21 @@ function createFile() {
 
     editor.push(fileName);
     
-    // START: Debounce change for createFile
-    const sendUpdate = debounce(() => {
+    // START: DIFF-BASED CHANGE for createFile
+    editor.push(editor[0].on('change', (instance, change) => {
         if (isProgrammaticChange) return;
-        const text = currentTextEditor.getValue();
-        const cursor = currentTextEditor.getCursor();
-        socket.emit('update_text', { room: room_id, text, currentTextEditorName, userName, cursor });
-    }, 100); 
 
-    editor.push(editor[0].on('change', sendUpdate));
-    // END: Debounce change for createFile
+        // Create a patch object from the CodeMirror change event
+        const patch = {
+            from: change.from,
+            to: change.to,
+            text: change.text,
+            removed: change.removed
+        };
+        const cursor = instance.getCursor();
+        socket.emit('update_text', { room: room_id, patch, currentTextEditorName, userName, cursor });
+    }));
+    // END: DIFF-BASED CHANGE for createFile
 
     editors[`textEditor${fileCount}`] = editor;
     socket.emit('create_new_file', {'room':room_id,'fileCount': fileCount, 'fileName': fileName});
@@ -256,16 +262,19 @@ function createFileByRequest(textEditorid, content, fileName) {
     editor.push(fileName);
     editor[0].setValue(content);
 
-    // START: Debounce change for createFileByRequest
-    const sendUpdate = debounce(() => {
+    // START: DIFF-BASED CHANGE for createFileByRequest
+    editor.push(editor[0].on('change', (instance, change) => {
         if (isProgrammaticChange) return;
-        const text = currentTextEditor.getValue();
-        const cursor = currentTextEditor.getCursor();
-        socket.emit('update_text', { room: room_id, text, currentTextEditorName, userName, cursor });
-    }, 100); 
-
-    editor.push(editor[0].on('change', sendUpdate));
-    // END: Debounce change for createFileByRequest
+        const patch = {
+            from: change.from,
+            to: change.to,
+            text: change.text,
+            removed: change.removed
+        };
+        const cursor = instance.getCursor();
+        socket.emit('update_text', { room: room_id, patch, currentTextEditorName, userName, cursor });
+    }));
+    // END: DIFF-BASED CHANGE for createFileByRequest
     
     editors[`textEditor${tempCount}`] = editor;
 }
@@ -375,16 +384,19 @@ function renameFile(){
 
     editors[`textEditor${tempCount}`][0].setValue(tempContents);
 
-    // START: Debounce change for renameFile
-    const sendUpdate = debounce(() => {
+    // START: DIFF-BASED CHANGE for renameFile
+    editors[`textEditor${tempCount}`][2] = editors[`textEditor${tempCount}`][0].on('change', (instance, change) => {
         if (isProgrammaticChange) return;
-        const text = currentTextEditor.getValue();
-        const cursor = currentTextEditor.getCursor();
-        socket.emit('update_text', { room: room_id, text, currentTextEditorName, userName, cursor });
-    }, 100); 
-
-    editors[`textEditor${tempCount}`][2] = editors[`textEditor${tempCount}`][0].on('change', sendUpdate);
-    // END: Debounce change for renameFile
+        const patch = {
+            from: change.from,
+            to: change.to,
+            text: change.text,
+            removed: change.removed
+        };
+        const cursor = instance.getCursor();
+        socket.emit('update_text', { room: room_id, patch, currentTextEditorName, userName, cursor });
+    });
+    // END: DIFF-BASED CHANGE for renameFile
 
     toggleEditor(`editor${tempCount}`);
     socket.emit('rename_file',{'room': room_id,'fileId':currentDivOfFile, 'newFileName':newFileName});
@@ -433,16 +445,19 @@ function renameFileByRequest(fileId, newFileName){
 
     editors[`textEditor${tempCount}`][0].setValue(tempContents);
 
-    // START: Debounce change for renameFileByRequest
-    const sendUpdate = debounce(() => {
+    // START: DIFF-BASED CHANGE for renameFileByRequest
+    editors[`textEditor${tempCount}`][2] = editors[`textEditor${tempCount}`][0].on('change', (instance, change) => {
         if (isProgrammaticChange) return;
-        const text = currentTextEditor.getValue();
-        const cursor = currentTextEditor.getCursor();
-        socket.emit('update_text', { room: room_id, text, currentTextEditorName, userName, cursor });
-    }, 100); 
-
-    editors[`textEditor${tempCount}`][2] = editors[`textEditor${tempCount}`][0].on('change', sendUpdate);
-    // END: Debounce change for renameFileByRequest
+        const patch = {
+            from: change.from,
+            to: change.to,
+            text: change.text,
+            removed: change.removed
+        };
+        const cursor = instance.getCursor();
+        socket.emit('update_text', { room: room_id, patch, currentTextEditorName, userName, cursor });
+    });
+    // END: DIFF-BASED CHANGE for renameFileByRequest
 
     toggleEditor(`editor${tempCount}`);
 }
@@ -523,20 +538,6 @@ function copyToClipboard(link = window.location.href) {
     alert("Link copied!");
 }
 
-
-//------------------------------------------------------(DEBOUNCE FUNCTION)---------------------------------------------------------
-// This is the new function to add.
-function debounce(func, delay) {
-    let timeoutId;
-    return function(...args) {
-        clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-            func.apply(this, args);
-        }, delay);
-    };
-}
-
-
 //------------------------------------------------------(DEFAULT CODE MIRROR OBJECTS)---------------------------------------------------------
 
 /*
@@ -559,16 +560,19 @@ editor.push(CodeMirror.fromTextArea(document.getElementById('textEditor1'), {
 
 editor.push("index.py");
 
-// START: Debounce change for default editor
-const sendUpdate = debounce(() => {
+// START: DIFF-BASED CHANGE for default editor
+editor.push(editor[0].on('change', (instance, change) => {
     if (isProgrammaticChange) return;
-    const text = currentTextEditor.getValue();
-    const cursor = currentTextEditor.getCursor();
-    socket.emit('update_text', { room: room_id, text, currentTextEditorName, userName, cursor });
-}, 100); 
-
-editor.push(editor[0].on('change', sendUpdate));
-// END: Debounce change for default editor
+    const patch = {
+        from: change.from,
+        to: change.to,
+        text: change.text,
+        removed: change.removed
+    };
+    const cursor = instance.getCursor();
+    socket.emit('update_text', { room: room_id, patch, currentTextEditorName, userName, cursor });
+}));
+// END: DIFF-BASED CHANGE for default editor
 
 editors[`textEditor1`] = editor;
 currentTextEditor = editors[`textEditor1`][0];
@@ -769,13 +773,23 @@ socket.on('create_editors', (data) => {
  * Updates the cursor position after each keystroke.
  */
 
-let isProgrammaticChange = false;
+// START: DIFF-BASED CHANGE for socket.on update_text
 socket.on('update_text', (data) => {
-    isProgrammaticChange = true;
+    isProgrammaticChange = false;
     let tempTextEditor = editors[data.currentTextEditorName][0];
     const cursor = tempTextEditor.getCursor();
-    tempTextEditor.setValue(data.text);
+    
+    // Apply the patch from the server
+    const patch = data.patch;
+    tempTextEditor.replaceRange(
+        patch.text.join('\n'), // Text to insert (for multi-line changes)
+        patch.from,           // Start position
+        patch.to              // End position
+    );
+
+    // Keep the cursor position stable
     tempTextEditor.setCursor(cursor);
     showUsernameAboveCursor(tempTextEditor, data.userName, data.cursor);
-    isProgrammaticChange = false;
+    isProgrammaticChange = true;
 });
+// END: DIFF-BASED CHANGE for socket.on update_text
