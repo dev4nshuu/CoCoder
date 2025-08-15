@@ -15,7 +15,7 @@ body {
 
 #top {
     text-align: center;
-    background-color: #DCD7C9;
+    background-color: #000000;
     flex: 1;
 }
 
@@ -34,7 +34,7 @@ body {
 #sidebar {
     padding: 5px;
     width: 90px;
-    background-color: #2C3639;
+    background-color: #000000;
     color: white;
     display: flex;
     flex-direction: column;
@@ -51,7 +51,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #3F4E4F;
+    background-color: #177739;
     border: 1px;
     border-color: black;
     border-radius: 8px;
@@ -60,13 +60,13 @@ body {
 }
 
 .tab:hover {
-    background-color: #A27B5C;
+    background-color: #09441e;
     transform: scale(1.1);
 }
 
 .tab.active {
-    background-color: #A27B5C;
-    box-shadow: 0 0 8px #A27B5C;
+    background-color: #09441e;
+    box-shadow: 0 0 8px #09441e;
 }
 
 .tabEditor {
@@ -80,7 +80,7 @@ body {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    background-color: #3F4E4F;
+    background-color: #177739;
     border: 1px;
     border-color: black;
     border-radius: 8px;
@@ -89,20 +89,20 @@ body {
 }
 
 .tabEditor:hover {
-    background-color: #A27B5C;
+    background-color: #09441e;
     transform: scale(1.05);
 }
 
 .tabEditor.active {
-    background-color: #A27B5C;
-    box-shadow: 0 0 8px #A27B5C;
+    background-color: #09441e;
+    box-shadow: 0 0 8px #09441e;
 }
 
 #ioAreaDiv {
     flex: 1;
     padding: 10px;
     border: 3px solid #DCD7C9;
-    background-color: #2C3639;
+    background-color: #000000;
     border-radius: 8px;
     height: 100;
     min-width: 130px;
@@ -112,7 +112,7 @@ body {
     flex: 2;
     padding: 10px;
     border: 1px solid #ccc;
-    background-color: #2C3639;
+    background-color: #000000;
     border-radius: 8px;
     border: 3px solid #DCD7C9;
 }
@@ -150,7 +150,7 @@ button{
     display: flex;
     justify-content: center;
     align-items: center;
-    background-color: #3F4E4F;
+    background-color: #177739;
     border: 1px;
     border-color: black;
     border-radius: 8px;
@@ -159,9 +159,9 @@ button{
 }
 
 button:hover{
-    background-color: #A27B5C;
+    background-color: #09441e;
     transform: scale(1.015);
-    box-shadow: 0 0 8px #A27B5C;
+    box-shadow: 0 0 8px #09441e;
 }
 
 .button-popup{
