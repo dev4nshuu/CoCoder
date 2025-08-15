@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CollaBrix</title>
+    <title>CoCoder</title>
     <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='img/favicon.ico') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
 </head>
@@ -15,7 +15,6 @@
         </div>
         <div class = "flex items-center justify-center sm:w-1/2 left-right-pad" >
             <div class ="container flex w-full max-w-[500px] flex-col items-center justify-center">
-                <img src ="./static/img/logo3.png" alt="CollaBrix Logo" >
                 <input type ="text" id="roomId" name="roomId" placeholder="Room Id" value="{{ room_id }}" required>
                 <input type ="text" id="userName" name="userName" placeholder="User Name" required>
                 <button onclick = "joinRoom()">Join</button>
