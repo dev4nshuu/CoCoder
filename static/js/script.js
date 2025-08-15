@@ -1,4 +1,3 @@
-
 //------------------------------------------------------(HEART)---------------------------------------------------------
 
 let activeTab = "file";
@@ -169,28 +168,33 @@ function createFile() {
     let fileExtension = fileName.split('.').pop();
     if (!(fileExtension in syntaxSelector)){
         fileExtension = 'plain';
-    }   
+    }    
 
     let editor = [];
     editor.push (CodeMirror.fromTextArea(document.getElementById(`textEditor${fileCount}`), {
-                    mode: syntaxSelector[fileExtension],
-                    lineNumbers: true,
-                    theme: "material-darker",
-                    autoCloseBrackets: true,
-                    matchBrackets: true,
-                    indentUnit: 4,
-                    tabSize: 4,
-                    smartIndent: true,
-                    indentWithTabs: false,
-                }));
+                      mode: syntaxSelector[fileExtension],
+                      lineNumbers: true,
+                      theme: "material-darker",
+                      autoCloseBrackets: true,
+                      matchBrackets: true,
+                      indentUnit: 4,
+                      tabSize: 4,
+                      smartIndent: true,
+                      indentWithTabs: false,
+                  }));
 
     editor.push(fileName);
-    editor.push(editor[0].on('change', () => {
-                if (isProgrammaticChange) return;
-                const text = currentTextEditor.getValue();
-                const cursor = currentTextEditor.getCursor();
-                socket.emit('update_text', { room: room_id, text, currentTextEditorName, userName, cursor });
-            }));
+    
+    // START: Debounce change for createFile
+    const sendUpdate = debounce(() => {
+        if (isProgrammaticChange) return;
+        const text = currentTextEditor.getValue();
+        const cursor = currentTextEditor.getCursor();
+        socket.emit('update_text', { room: room_id, text, currentTextEditorName, userName, cursor });
+    }, 100); 
+
+    editor.push(editor[0].on('change', sendUpdate));
+    // END: Debounce change for createFile
 
     editors[`textEditor${fileCount}`] = editor;
     socket.emit('create_new_file', {'room':room_id,'fileCount': fileCount, 'fileName': fileName});
@@ -234,29 +238,34 @@ function createFileByRequest(textEditorid, content, fileName) {
     let fileExtension = fileName.split('.').pop();
     if (!(fileExtension in syntaxSelector)){
         fileExtension = 'plain';
-    }   
+    }    
 
     let editor = [];
     editor.push (CodeMirror.fromTextArea(document.getElementById(`textEditor${tempCount}`), {
-                    mode: syntaxSelector[fileExtension],
-                    lineNumbers: true,
-                    theme: "material-darker",
-                    autoCloseBrackets: true,
-                    matchBrackets: true,
-                    indentUnit: 4,
-                    tabSize: 4,
-                    smartIndent: true,
-                    indentWithTabs: false,
-                }));
+                      mode: syntaxSelector[fileExtension],
+                      lineNumbers: true,
+                      theme: "material-darker",
+                      autoCloseBrackets: true,
+                      matchBrackets: true,
+                      indentUnit: 4,
+                      tabSize: 4,
+                      smartIndent: true,
+                      indentWithTabs: false,
+                  }));
 
     editor.push(fileName);
     editor[0].setValue(content);
-    editor.push(editor[0].on('change', () => {
-                if (isProgrammaticChange) return;
-                const text = currentTextEditor.getValue();
-                const cursor = currentTextEditor.getCursor();
-                socket.emit('update_text', { room: room_id, text, currentTextEditorName, userName, cursor });
-            }));
+
+    // START: Debounce change for createFileByRequest
+    const sendUpdate = debounce(() => {
+        if (isProgrammaticChange) return;
+        const text = currentTextEditor.getValue();
+        const cursor = currentTextEditor.getCursor();
+        socket.emit('update_text', { room: room_id, text, currentTextEditorName, userName, cursor });
+    }, 100); 
+
+    editor.push(editor[0].on('change', sendUpdate));
+    // END: Debounce change for createFileByRequest
     
     editors[`textEditor${tempCount}`] = editor;
 }
@@ -286,7 +295,7 @@ function deleteFile() {
             remainingTabs[0].click(); 
         }
 
-        socket.emit('delete_file',{'room': room_id,'fileId':currentDivOfFile});    
+        socket.emit('delete_file',{'room': room_id,'fileId':currentDivOfFile});   
     }
 }
 
@@ -308,7 +317,7 @@ function deleteFileByRequest(fileId) {
     const remainingTabs = document.querySelectorAll('#file .tabEditor');
     if (remainingTabs.length > 0) {
         remainingTabs[0].click();
-    }   
+    }    
 }
 
 /*
@@ -350,27 +359,32 @@ function renameFile(){
     let fileExtension = newFileName.split('.').pop();
     if (!(fileExtension in syntaxSelector)){
         fileExtension = 'plain';
-    }   
+    }    
 
     editors[`textEditor${tempCount}`][0] = (CodeMirror.fromTextArea(document.getElementById(`textEditor${tempCount}`), {
-                    mode: syntaxSelector[fileExtension],
-                    lineNumbers: true,
-                    theme: "material-darker",
-                    autoCloseBrackets: true,
-                    matchBrackets: true,
-                    indentUnit: 4,
-                    tabSize: 4,
-                    smartIndent: true,
-                    indentWithTabs: false,
-                }));
+                      mode: syntaxSelector[fileExtension],
+                      lineNumbers: true,
+                      theme: "material-darker",
+                      autoCloseBrackets: true,
+                      matchBrackets: true,
+                      indentUnit: 4,
+                      tabSize: 4,
+                      smartIndent: true,
+                      indentWithTabs: false,
+                  }));
 
     editors[`textEditor${tempCount}`][0].setValue(tempContents);
-    editors[`textEditor${tempCount}`][2] = editors[`textEditor${tempCount}`][0].on('change', () => {
-                if (isProgrammaticChange) return;
-                const text = currentTextEditor.getValue();
-                const cursor = currentTextEditor.getCursor();
-                socket.emit('update_text', { room: room_id, text, currentTextEditorName, userName, cursor });
-            });
+
+    // START: Debounce change for renameFile
+    const sendUpdate = debounce(() => {
+        if (isProgrammaticChange) return;
+        const text = currentTextEditor.getValue();
+        const cursor = currentTextEditor.getCursor();
+        socket.emit('update_text', { room: room_id, text, currentTextEditorName, userName, cursor });
+    }, 100); 
+
+    editors[`textEditor${tempCount}`][2] = editors[`textEditor${tempCount}`][0].on('change', sendUpdate);
+    // END: Debounce change for renameFile
 
     toggleEditor(`editor${tempCount}`);
     socket.emit('rename_file',{'room': room_id,'fileId':currentDivOfFile, 'newFileName':newFileName});
@@ -403,27 +417,32 @@ function renameFileByRequest(fileId, newFileName){
     let fileExtension = newFileName.split('.').pop();
     if (!(fileExtension in syntaxSelector)){
         fileExtension = 'plain';
-    }   
+    }    
 
     editors[`textEditor${tempCount}`][0] = (CodeMirror.fromTextArea(document.getElementById(`textEditor${tempCount}`), {
-                    mode: syntaxSelector[fileExtension],
-                    lineNumbers: true,
-                    theme: "material-darker",
-                    autoCloseBrackets: true,
-                    matchBrackets: true,
-                    indentUnit: 4,
-                    tabSize: 4,
-                    smartIndent: true,
-                    indentWithTabs: false,
-                }));
+                      mode: syntaxSelector[fileExtension],
+                      lineNumbers: true,
+                      theme: "material-darker",
+                      autoCloseBrackets: true,
+                      matchBrackets: true,
+                      indentUnit: 4,
+                      tabSize: 4,
+                      smartIndent: true,
+                      indentWithTabs: false,
+                  }));
 
     editors[`textEditor${tempCount}`][0].setValue(tempContents);
-    editors[`textEditor${tempCount}`][2] = editors[`textEditor${tempCount}`][0].on('change', () => {
-                if (isProgrammaticChange) return;
-                const text = currentTextEditor.getValue();
-                const cursor = currentTextEditor.getCursor();
-                socket.emit('update_text', { room: room_id, text, currentTextEditorName, userName, cursor });
-            });
+
+    // START: Debounce change for renameFileByRequest
+    const sendUpdate = debounce(() => {
+        if (isProgrammaticChange) return;
+        const text = currentTextEditor.getValue();
+        const cursor = currentTextEditor.getCursor();
+        socket.emit('update_text', { room: room_id, text, currentTextEditorName, userName, cursor });
+    }, 100); 
+
+    editors[`textEditor${tempCount}`][2] = editors[`textEditor${tempCount}`][0].on('change', sendUpdate);
+    // END: Debounce change for renameFileByRequest
 
     toggleEditor(`editor${tempCount}`);
 }
@@ -504,6 +523,20 @@ function copyToClipboard(link = window.location.href) {
     alert("Link copied!");
 }
 
+
+//------------------------------------------------------(DEBOUNCE FUNCTION)---------------------------------------------------------
+// This is the new function to add.
+function debounce(func, delay) {
+    let timeoutId;
+    return function(...args) {
+        clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            func.apply(this, args);
+        }, delay);
+    };
+}
+
+
 //------------------------------------------------------(DEFAULT CODE MIRROR OBJECTS)---------------------------------------------------------
 
 /*
@@ -526,12 +559,17 @@ editor.push(CodeMirror.fromTextArea(document.getElementById('textEditor1'), {
 
 editor.push("index.py");
 
-editor.push(editor[0].on('change', () => {
-                if (isProgrammaticChange) return;
-                const text = currentTextEditor.getValue();
-                const cursor = currentTextEditor.getCursor();
-                socket.emit('update_text', { room: room_id, text, currentTextEditorName, userName, cursor });
-            }));
+// START: Debounce change for default editor
+const sendUpdate = debounce(() => {
+    if (isProgrammaticChange) return;
+    const text = currentTextEditor.getValue();
+    const cursor = currentTextEditor.getCursor();
+    socket.emit('update_text', { room: room_id, text, currentTextEditorName, userName, cursor });
+}, 100); 
+
+editor.push(editor[0].on('change', sendUpdate));
+// END: Debounce change for default editor
+
 editors[`textEditor1`] = editor;
 currentTextEditor = editors[`textEditor1`][0];
 currentTextEditorName = `textEditor1`;
@@ -689,8 +727,8 @@ socket.on('request_editors', (data) => {
         currentEditors.push(temp);
     }
     if(!(currentEditors.length === 1 && 
-        currentEditors[0][1] === "#hello1" && 
-        currentEditors[0][2] === "index.py")){
+         currentEditors[0][1] === "#hello1" && 
+         currentEditors[0][2] === "index.py")){
         socket.emit('requested_editors', { room: room_id, currentEditors, fileCount});
     }
     
