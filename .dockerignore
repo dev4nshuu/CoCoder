@@ -1,2 +1,11 @@
-README.md
-assets
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+.env
+.git
+.gitignore
+node_modules
+temp
